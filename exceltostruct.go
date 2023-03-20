@@ -1,57 +1,12 @@
-package main
+package exceltostruct
 
 import (
-	"fmt"
-	"github.com/go-playground/validator/v10"
 	"github.com/xuri/excelize/v2"
 	"reflect"
 	"strconv"
 )
 
-type User struct {
-	Id        int     `xlsx:"id"`
-	FirstName string  `xlsx:"first_name" validate:"required"`
-	LastName  string  `xlsx:"last_name"`
-	Email     string  `xlsx:"email"`
-	Gender    bool    `xlsx:"gender"`
-	Balance   float32 `xlsx:"balance"`
-}
-
-var validate *validator.Validate
-
-func main() {
-	validate = validator.New()
-
-	data := excelToStruct[User]("Book1.xlsx", "Sheet1")
-
-	ok, errList := someValidation(data)
-	if ok {
-		fmt.Println("Data is valid")
-		fmt.Println(data)
-	} else {
-		fmt.Println("Data is not valid")
-		fmt.Println(errList)
-	}
-}
-
-func someValidation[T any](data []T) (bool, []error) {
-	var errList []error
-
-	for _, v := range data {
-		err := validate.Struct(v)
-		if err != nil {
-			errList = append(errList, err)
-		}
-	}
-
-	if len(errList) > 0 {
-		return false, errList
-	} else {
-		return true, nil
-	}
-}
-
-func excelToStruct[T any](bookPath, sheetName string) (dataExcel []T) {
+func convert[T any](bookPath, sheetName string) (dataExcel []T) {
 	f, _ := excelize.OpenFile(bookPath)
 	rows, _ := f.GetRows(sheetName)
 
