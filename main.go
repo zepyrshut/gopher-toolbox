@@ -18,10 +18,14 @@ type User struct {
 
 func main() {
 
-	f, _ := excelize.OpenFile("Book1.xlsx")
-	rows, _ := f.GetRows("Sheet1")
+	data := excelToStruct[User]("Book1.xlsx", "Sheet1")
 
-	var dataExcel []User
+	fmt.Println(data)
+}
+
+func excelToStruct[T any](bookPath, sheetName string) (dataExcel []T) {
+	f, _ := excelize.OpenFile(bookPath)
+	rows, _ := f.GetRows(sheetName)
 
 	firstRow := map[string]int{}
 
@@ -29,11 +33,11 @@ func main() {
 		firstRow[row] = i
 	}
 
-	dataExcel = make([]User, 0, len(rows)-1)
+	t := new(T)
+	dataExcel = make([]T, 0, len(rows)-1)
 
 	for _, row := range rows[1:3] {
-		u := User{}
-		v := reflect.ValueOf(&u)
+		v := reflect.ValueOf(t)
 		if v.Kind() == reflect.Pointer {
 			v = v.Elem()
 		}
@@ -52,13 +56,13 @@ func main() {
 			}
 		}
 
-		dataExcel = append(dataExcel, u)
+		dataExcel = append(dataExcel, *t)
 	}
 
-	fmt.Println(dataExcel)
+	return dataExcel
 }
 
-func convertType(objType string, value string) interface{} {
+func convertType(objType string, value string) any {
 	switch objType {
 	case "int":
 		valueInt, _ := strconv.Atoi(value)
