@@ -19,7 +19,7 @@ func Convert[T any](bookPath, sheetName string) (dataExcel []T) {
 	t := new(T)
 	dataExcel = make([]T, 0, len(rows)-1)
 
-	for _, row := range rows[1:3] {
+	for _, row := range rows[1:] {
 		v := reflect.ValueOf(t)
 		if v.Kind() == reflect.Pointer {
 			v = v.Elem()
