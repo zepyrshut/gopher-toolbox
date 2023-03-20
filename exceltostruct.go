@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func convert[T any](bookPath, sheetName string) (dataExcel []T) {
+func Convert[T any](bookPath, sheetName string) (dataExcel []T) {
 	f, _ := excelize.OpenFile(bookPath)
 	rows, _ := f.GetRows(sheetName)
 
