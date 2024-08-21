@@ -58,7 +58,7 @@ func WithRenderOptions(opts *Render) OptionFunc {
 
 		if opts.EnableCache {
 			re.EnableCache = opts.EnableCache
-			re.TemplateCache, _ = re.CreateTemplateCache()
+			re.TemplateCache, _ = re.createTemplateCache()
 		}
 	}
 }
@@ -101,7 +101,7 @@ func (re *Render) Template(w http.ResponseWriter, r *http.Request, tmpl string, 
 	if re.EnableCache {
 		tc = re.TemplateCache
 	} else {
-		tc, err = re.CreateTemplateCache()
+		tc, err = re.createTemplateCache()
 		if err != nil {
 			log.Println("error creating template cache:", err)
 			return err
@@ -129,7 +129,7 @@ func (re *Render) Template(w http.ResponseWriter, r *http.Request, tmpl string, 
 	return nil
 }
 
-func (re *Render) CreateTemplateCache() (TemplateCache, error) {
+func (re *Render) createTemplateCache() (TemplateCache, error) {
 	myCache := TemplateCache{}
 
 	pagesTemplates, err := filepath.Glob(fmt.Sprintf("%s/*.html", re.PageTemplatesPath))

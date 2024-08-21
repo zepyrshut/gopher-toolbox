@@ -7,6 +7,7 @@ estándar de Go `html/template`.
 
 - Procesamiento de plantillas utilizando `html/template`.
 - Soporte para caché de plantillas.
+- Soporte para paginación de elementos como tablas o múltiples blogs.
 - Posibilidad de añadir funciones personalizadas a las plantillas.
 - Configuración sencilla con opciones por defecto que se pueden sobreescribir.
 Inspirado en `Gin`.
@@ -92,7 +93,7 @@ func main() {
 ## Descargo de responsabilidad
 
 Esta librería fue creada para usar las plantillas en mis proyectos privados, es 
-posible que también solucione su problema. Sin embargo, no ofrezco ninguna 
+posible que también solucione tu problema. Sin embargo, no ofrezco ninguna 
 garantía de que funcione para todos los casos de uso, tenga el máximo
 rendimiento o esté libre de errores.
 
