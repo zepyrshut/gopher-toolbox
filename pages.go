@@ -1,5 +1,10 @@
 package gorender
 
+import (
+	"net/http"
+	"strconv"
+)
+
 // Pages contiene la información de paginación.
 type Pages struct {
 	// totalElements son la cantidad de elementos totales a paginar. Pueden ser
@@ -127,4 +132,22 @@ func PaginateArray[T any](items []T, currentPage, itemsPerPage int) []T {
 	}
 
 	return items[startIndex:endIndex]
+}
+
+func PaginationParams(r *http.Request) (int, int, int) {
+	limit := r.FormValue("limit")
+	if limit == "" {
+		limit = "50"
+	}
+	page := r.FormValue("page")
+	if page == "" || page == "0" {
+		page = "1"
+	}
+
+	limitInt, _ := strconv.Atoi(limit)
+	pageInt, _ := strconv.Atoi(page)
+	offset := (pageInt - 1) * limitInt
+	actualPage := offset/limitInt + 1
+
+	return limitInt, offset, actualPage
 }

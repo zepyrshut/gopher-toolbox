@@ -32,6 +32,8 @@ type OptionFunc func(*Render)
 
 type TemplateData struct {
 	Data map[string]interface{}
+	// SessionData contiene los datos de la sesión del usuario.
+	SessionData interface{}
 	// FeedbackData tiene como función mostrar los mensajes habituales de
 	// información, advertencia, éxito y error. No va implícitamente relacionado
 	// con los errores de validación de formularios pero pueden ser usados para
