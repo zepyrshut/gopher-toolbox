@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"html/template"
 	"io/fs"
-	"log"
 	"log/slog"
 	"net/http"
 	"path/filepath"
@@ -78,10 +77,10 @@ func New(opts ...OptionFunc) *Render {
 		Functions:         functions,
 	}
 
-	return config.Apply(opts...)
+	return config.apply(opts...)
 }
 
-func (re *Render) Apply(opts ...OptionFunc) *Render {
+func (re *Render) apply(opts ...OptionFunc) *Render {
 	for _, opt := range opts {
 		opt(re)
 	}
@@ -89,7 +88,7 @@ func (re *Render) Apply(opts ...OptionFunc) *Render {
 	return re
 }
 
-func AddDefaultData(td *TemplateData, r *http.Request) *TemplateData {
+func addDefaultData(td *TemplateData, r *http.Request) *TemplateData {
 	td.CSRFToken = nosurf.Token(r)
 	return td
 }
@@ -103,7 +102,7 @@ func (re *Render) Template(w http.ResponseWriter, r *http.Request, tmpl string, 
 	} else {
 		tc, err = re.createTemplateCache()
 		if err != nil {
-			log.Println("error creating template cache:", err)
+			slog.Error("error creating template cache:", "error", err)
 			return err
 		}
 	}
@@ -114,16 +113,16 @@ func (re *Render) Template(w http.ResponseWriter, r *http.Request, tmpl string, 
 	}
 
 	buf := new(bytes.Buffer)
-	td = AddDefaultData(td, r)
+	td = addDefaultData(td, r)
 	err = t.Execute(buf, td)
 	if err != nil {
-		log.Println("error executing template:", err)
+		slog.Error("error executing template:", "error", err)
 		return err
 	}
 
 	_, err = buf.WriteTo(w)
 	if err != nil {
-		log.Println("error writing template to browser:", err)
+		slog.Error("error writing template to browser:", "error", err)
 	}
 
 	return nil
@@ -150,7 +149,7 @@ func (re *Render) createTemplateCache() (TemplateCache, error) {
 		return nil
 	})
 
-	for function, _ := range re.Functions {
+	for function := range re.Functions {
 		slog.Info("function found", "function", function)
 	}
 
