@@ -3,7 +3,6 @@ package gorender
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"html/template"
 	"io/fs"
 	"log/slog"
@@ -130,26 +129,40 @@ func (re *Render) Template(w http.ResponseWriter, r *http.Request, tmpl string, 
 	return nil
 }
 
-func (re *Render) createTemplateCache() (TemplateCache, error) {
-	myCache := TemplateCache{}
+func findHTMLFiles(root string) ([]string, error) {
+	var files []string
 
-	pagesTemplates, err := filepath.Glob(fmt.Sprintf("%s/*.html", re.PageTemplatesPath))
-	if err != nil {
-		return myCache, err
-	}
-
-	files := []string{}
-	filepath.WalkDir(re.TemplatesPath, func(path string, file fs.DirEntry, err error) error {
+	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		if !file.IsDir() {
-			slog.Info("file found", "path", path)
+
+		if !d.IsDir() && filepath.Ext(path) == ".html" {
 			files = append(files, path)
 		}
 
 		return nil
 	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return files, nil
+}
+
+func (re *Render) createTemplateCache() (TemplateCache, error) {
+	myCache := TemplateCache{}
+
+	pagesTemplates, err := findHTMLFiles(re.PageTemplatesPath)
+	if err != nil {
+		return myCache, err
+	}
+
+	files, err := findHTMLFiles(re.TemplatesPath)
+	if err != nil {
+		return myCache, err
+	}
 
 	for function := range re.Functions {
 		slog.Info("function found", "function", function)
