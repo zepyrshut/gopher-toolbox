@@ -38,7 +38,7 @@ func LastName() string {
 }
 
 func Email(beforeAt string) string {
-	return beforeAt + "@" + AllChars(5, 10) + ".local"
+	return beforeAt + "@" + Chars(5, 10) + ".local"
 }
 
 func Int(min, max int64) int64 {
