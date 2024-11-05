@@ -19,3 +19,10 @@ func LogAndReturnError(err error, message string) error {
 	slog.Error(message, "error", err.Error())
 	return fmt.Errorf("%s: %w", message, err)
 }
+
+func GetBoolFromString(s string) bool {
+	if s == "S" || s == "s" {
+		return true
+	}
+	return false
+}
