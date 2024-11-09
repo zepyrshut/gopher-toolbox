@@ -12,8 +12,9 @@ import (
 type App struct {
 	DataSource string
 	UseCache   bool
-	Security   Security
-	AppInfo    AppInfo
+	// TODO: Extract Security field and use as ExtendedApp (or think a strategy for better library management)
+	Security Security
+	AppInfo  AppInfo
 }
 
 type AppInfo struct {

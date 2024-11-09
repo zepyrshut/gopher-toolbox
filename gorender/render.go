@@ -12,7 +12,7 @@ import (
 	"github.com/justinas/nosurf"
 )
 
-type TemplateCache map[string]*template.Template
+type templateCache map[string]*template.Template
 
 type Render struct {
 	EnableCache bool
@@ -23,21 +23,23 @@ type Render struct {
 	// páginas de la aplicación. Estas son las que van a ser llamadas para
 	// mostrar en pantalla.
 	PageTemplatesPath string
-	TemplateCache     TemplateCache
 	Functions         template.FuncMap
+	templateCache     templateCache
 }
 
 type OptionFunc func(*Render)
+type Data map[string]interface{}
+type FeedbackData map[string]string
 
 type TemplateData struct {
-	Data map[string]interface{}
+	Data Data
 	// SessionData contiene los datos de la sesión del usuario.
 	SessionData interface{}
 	// FeedbackData tiene como función mostrar los mensajes habituales de
 	// información, advertencia, éxito y error. No va implícitamente relacionado
 	// con los errores de validación de formularios pero pueden ser usados para
 	// ello.
-	FeedbackData map[string]string
+	FeedbackData FeedbackData
 	// FormData es una estructura que contiene los errores de validación de los
 	// formularios además de los valores que se han introducido en los campos.
 	FormData  FormData
@@ -58,7 +60,7 @@ func WithRenderOptions(opts *Render) OptionFunc {
 
 		if opts.EnableCache {
 			re.EnableCache = opts.EnableCache
-			re.TemplateCache, _ = re.createTemplateCache()
+			re.templateCache, _ = re.createTemplateCache()
 		}
 	}
 }
@@ -74,8 +76,8 @@ func New(opts ...OptionFunc) *Render {
 		EnableCache:       false,
 		TemplatesPath:     "templates",
 		PageTemplatesPath: "templates/pages",
-		TemplateCache:     TemplateCache{},
 		Functions:         functions,
+		templateCache:     templateCache{},
 	}
 
 	return config.apply(opts...)
@@ -95,12 +97,17 @@ func addDefaultData(td *TemplateData, r *http.Request) *TemplateData {
 }
 
 func (re *Render) Template(w http.ResponseWriter, r *http.Request, tmpl string, td *TemplateData) error {
-	var tc TemplateCache
+	var tc templateCache
 	var err error
 
+	if td == nil {
+		td = &TemplateData{}
+	}
+
 	if re.EnableCache {
-		tc = re.TemplateCache
+		tc = re.templateCache
 	} else {
+		slog.Info("creating template cache")
 		tc, err = re.createTemplateCache()
 		if err != nil {
 			slog.Error("error creating template cache:", "error", err)
@@ -137,7 +144,7 @@ func findHTMLFiles(root string) ([]string, error) {
 			return err
 		}
 
-		if !d.IsDir() && filepath.Ext(path) == ".html" {
+		if !d.IsDir() && filepath.Ext(path) == ".gohtml" {
 			files = append(files, path)
 		}
 
@@ -151,8 +158,8 @@ func findHTMLFiles(root string) ([]string, error) {
 	return files, nil
 }
 
-func (re *Render) createTemplateCache() (TemplateCache, error) {
-	myCache := TemplateCache{}
+func (re *Render) createTemplateCache() (templateCache, error) {
+	myCache := templateCache{}
 
 	pagesTemplates, err := findHTMLFiles(re.PageTemplatesPath)
 	if err != nil {
@@ -162,10 +169,6 @@ func (re *Render) createTemplateCache() (TemplateCache, error) {
 	files, err := findHTMLFiles(re.TemplatesPath)
 	if err != nil {
 		return myCache, err
-	}
-
-	for function := range re.Functions {
-		slog.Info("function found", "function", function)
 	}
 
 	for _, file := range pagesTemplates {
