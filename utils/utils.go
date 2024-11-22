@@ -1,16 +1,16 @@
 package utils
 
 import (
-	"bufio"
 	"fmt"
-	"golang.org/x/text/transform"
-	"golang.org/x/text/unicode/norm"
 	"log/slog"
-	"os"
 	"regexp"
 	"strings"
 	"time"
 	"unicode"
+
+	"golang.org/x/text/runes"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 )
 
 func CorrectTimezone(timeStamp time.Time) time.Time {
@@ -34,34 +34,10 @@ func GetBoolFromString(s string) bool {
 	return false
 }
 
-func LoadEnvFile(filename string) error {
-	file, err := os.Open(filename)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if len(line) == 0 || strings.HasPrefix(line, "#") {
-			continue
-		}
-		parts := strings.SplitN(line, "=", 2)
-		if len(parts) != 2 {
-			continue
-		}
-		key := strings.TrimSpace(parts[0])
-		value := strings.TrimSpace(parts[1])
-		os.Setenv(key, value)
-	}
-	return scanner.Err()
-}
-
 func Slugify(s string) string {
 	s = strings.ToLower(s)
 
-	t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
+	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
 	s, _, _ = transform.String(t, s)
 
 	s = strings.ReplaceAll(s, " ", "-")

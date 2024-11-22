@@ -19,18 +19,4 @@ const (
 	ErrorGettingAll string = "error_getting_all"
 	InvalidEntityID string = "invalid_entity_id"
 	NotImplemented  string = "not_implemented"
-
-	UserUsernameKey       string = "user_username_key"
-	UserEmailKey          string = "user_email_key"
-	UsernameAlReadyExists string = "username_already_exists"
-	EmailAlreadyExists    string = "email_already_exists"
-	IncorrectPassword     string = "incorrect_password"
-	ErrorGeneratingToken  string = "error_generating_token"
-	LoggedIn              string = "logged_in"
-
-	CategoryNameKey       string = "category_name_key"
-	CategoryAlreadyExists string = "category_already_exists"
-
-	ItemsNameKey      string = "items_name_key"
-	NameAlreadyExists string = "name_already_exists"
 )

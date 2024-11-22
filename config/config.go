@@ -1,60 +1,90 @@
 package config
 
 import (
-	"fmt"
-	"gopher-toolbox/token"
-	"io"
+	"bufio"
 	"log/slog"
 	"os"
+	"strings"
 	"time"
+
+	"aidanwoods.dev/go-paseto"
 )
 
 type App struct {
 	DataSource string
-	UseCache   bool
-	// TODO: Extract Security field and use as ExtendedApp (or think a strategy for better library management)
-	Security Security
-	AppInfo  AppInfo
+	Security   Security
+	AppInfo    AppInfo
 }
 
 type AppInfo struct {
-	GinMode string
 	Version string
 }
 
 type Security struct {
-	Token     *token.Paseto
-	StripeKey string
-	Duration  time.Duration
+	AsymmetricKey paseto.V4AsymmetricSecretKey
+	PublicKey     paseto.V4AsymmetricPublicKey
+	Duration      time.Duration
 }
 
-func NewLogger(level slog.Level) {
-	now := time.Now().Format("2006-01-02")
-	if _, err := os.Stat("logs"); os.IsNotExist(err) {
-		os.Mkdir("logs", 0755)
+func New(version string) *App {
+	var err error
+
+	err = loadEnvFile()
+	if err != nil {
+		slog.Error("error loading env file", "error", err)
+		panic(err)
 	}
-	f, _ := os.OpenFile(fmt.Sprintf("logs/log%s.log", now), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	mw := io.MultiWriter(os.Stdout, f)
 
-	logger := slog.New(slog.NewTextHandler(mw, &slog.HandlerOptions{
-		AddSource: true,
-		Level:     level,
-	}))
+	var durationTime time.Duration
+	var ak paseto.V4AsymmetricSecretKey
 
-	slog.SetDefault(logger)
+	ak, err = paseto.NewV4AsymmetricSecretKeyFromHex(os.Getenv("ASYMMETRICKEY"))
+	if err != nil {
+		ak = paseto.NewV4AsymmetricSecretKey()
+	}
+	pk := ak.Public()
+
+	duration := os.Getenv("DURATION")
+	if duration != "" {
+		durationTime, err = time.ParseDuration(duration)
+		if err != nil {
+			durationTime = time.Hour * 24 * 7
+		}
+	}
+
+	return &App{
+		DataSource: os.Getenv("DATASOURCE"),
+		Security: Security{
+			AsymmetricKey: ak,
+			PublicKey:     pk,
+			Duration:      durationTime,
+		},
+		AppInfo: AppInfo{
+			Version: version,
+		},
+	}
 }
 
-func LogLevel(level string) slog.Level {
-	switch level {
-	case "debug":
-		return slog.LevelDebug
-	case "info":
-		return slog.LevelInfo
-	case "warn":
-		return slog.LevelWarn
-	case "error":
-		return slog.LevelError
-	default:
-		return slog.LevelDebug
+func loadEnvFile() error {
+	file, err := os.Open(".env")
+	if err != nil {
+		return err
 	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if len(line) == 0 || strings.HasPrefix(line, "#") {
+			continue
+		}
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		key := strings.TrimSpace(parts[0])
+		value := strings.TrimSpace(parts[1])
+		os.Setenv(key, value)
+	}
+	return scanner.Err()
 }

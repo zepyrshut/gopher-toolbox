@@ -12,7 +12,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-func NewPostgresPool(dataSource string) *pgxpool.Pool {
+func NewPGXPool(dataSource string) *pgxpool.Pool {
 	dbPool, err := pgxpool.New(context.Background(), dataSource)
 	if err != nil {
 		slog.Error("error connecting to database", "error", err)
@@ -42,19 +42,10 @@ func NewMySQL(dataSource string) (*sql.DB, error) {
 	d.SetMaxIdleConns(maxIdleDbConn)
 	d.SetConnMaxLifetime(maxDbLifetime)
 
-	err = testDB(d)
-	if err != nil {
+	if err := d.Ping(); err != nil {
 		slog.Error("error pinging database", "error", err)
 		return nil, err
 	}
 
 	return d, nil
-}
-
-func testDB(d *sql.DB) error {
-	err := d.Ping()
-	if err != nil {
-		return err
-	}
-	return nil
 }
