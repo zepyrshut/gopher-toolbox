@@ -151,6 +151,7 @@ func (a *App) Migrate(database embed.FS) {
 	}
 	if errors.Is(err, migrate.ErrNoChange) {
 		slog.Info("migration has no changes")
+		return
 	}
 
 	slog.Info("migration done")
