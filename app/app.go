@@ -23,7 +23,6 @@ const (
 	// Handlers keys
 	InvalidRequest  string = "invalid_request"
 	InternalError   string = "internal_error"
-	RequestID       string = "request_id"
 	NotFound        string = "not_found"
 	Created         string = "created"
 	Updated         string = "updated"
