@@ -102,3 +102,15 @@ func NumericString(length int) string {
 
 	return sb.String()
 }
+
+func Sentence(min, max int) string {
+	var sb strings.Builder
+	k := len(lowercaseAlphabet)
+
+	for i := 0; i < rand.Intn(max-min+1)+min; i++ {
+		c := lowercaseAlphabet[rand.Intn(k)]
+		sb.WriteByte(c)
+	}
+
+	return sb.String()
+}
