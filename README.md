@@ -1,19 +1,16 @@
 # Gopher Toolbox
 
-Es una librería donde se concentra el código _boilerplate_ que se usan en
-distintos proyectos. Incluyen lo siguiente:
+It is a library that gathers the boilerplate code used in different projects. 
+It includes the following:
 
-- Implementación controladores de bases de datos:
+- Database controller implementations:
   - [PGX Pool](github.com/jackc/pgx/v5)
   - MySQL
 
+- Utilities for converting [pgtype](github.com/jackc/pgx/v5/pgtype) to Go types.
 
-- Utilidades para conversión de tipos [pgtype](github.com/jackc/pgx/v5/pgtype) a
-tipos de Golang.
-
-
-- Generación de datos aleatorios para pruebas unitarias, similar a librería 
-[Faker](https://faker.readthedocs.io/en/master/) de Python.
+- Random data generation for unit tests, similar to the [Faker](https://faker.readthedocs.io/en/master/) 
+in Python.
 
 ```go
 MaleName() string
@@ -32,15 +29,13 @@ NumericString(length int) string
 Sentence(min, max int) string
 ```
 
-- Conversión de ficheros Excel a tipos estructurados. Se le pasa el tipo del 
-_struct_ a la función `Convert[T any](bookPath, sheetName string)` y te
-devolverá los datos del tipo `dataExcel []T`.
+- Conversion of Excel files to structured types. You pass the struct type to the
+ function `Convert[T any](bookPath, sheetName string)`, and it will return the 
+ data as `dataExcel []T`.
 
+- Constants for HTTP handlers.
 
-- Constantes para los manejadores HTTP.
-
-
-- Utilidades varias
+- Miscelaneous utilities
 
 ```go
 CorrectTimezone(timeStamp time.Time) time.Time 
