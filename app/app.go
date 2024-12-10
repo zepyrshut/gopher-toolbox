@@ -6,6 +6,7 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	"gopher-toolbox/mail"
 	"gopher-toolbox/utils"
 	"log/slog"
 	"os"
@@ -53,6 +54,7 @@ type App struct {
 	Database AppDatabase
 	Security AppSecurity
 	AppInfo  AppInfo
+	Mailer   mail.Mailer
 }
 
 type AppDatabase struct {
@@ -83,10 +85,7 @@ func New(version string) *App {
 	var durationTime time.Duration
 	var ak paseto.V4AsymmetricSecretKey
 
-	ak, err = paseto.NewV4AsymmetricSecretKeyFromHex(os.Getenv("ASYMMETRICKEY"))
-	if err != nil {
-		ak = paseto.NewV4AsymmetricSecretKey()
-	}
+	ak = paseto.NewV4AsymmetricSecretKey()
 	pk := ak.Public()
 
 	duration := os.Getenv("DURATION")
@@ -98,6 +97,12 @@ func New(version string) *App {
 	}
 
 	return &App{
+		Mailer: mail.New(
+			os.Getenv("SMTP_HOST"),
+			os.Getenv("SMTP_PORT"),
+			os.Getenv("SMTP_USER"),
+			os.Getenv("SMTP_PASS"),
+		),
 		Database: AppDatabase{
 			Migrate:    utils.GetBool(os.Getenv("MIGRATE")),
 			DriverName: os.Getenv("DRIVERNAME"),
