@@ -41,10 +41,13 @@ const (
 	NotImplemented  string = "not_implemented"
 
 	// User keys
-	UserUsernameKey       string = "user_username_key"
-	UserEmailKey          string = "user_email_key"
+	UserUsernameKey       string = "username_key"
+	UserEmailKey          string = "email_key"
 	UsernameAlReadyExists string = "username_already_exists"
+	UserSessionKey        string = "user_session_key"
 	EmailAlreadyExists    string = "email_already_exists"
+	PhoneNumberKey        string = "phone_number_key"
+	PhoneAlreadyExists    string = "phone_already_exists"
 	IncorrectPassword     string = "incorrect_password"
 	ErrorGeneratingToken  string = "error_generating_token"
 	LoggedIn              string = "logged_in"
@@ -64,6 +67,7 @@ type AppDatabase struct {
 }
 
 type AppInfo struct {
+	Name    string
 	Version string
 }
 
@@ -73,7 +77,7 @@ type AppSecurity struct {
 	Duration      time.Duration
 }
 
-func New(version string) *App {
+func New(name, version string) *App {
 	var err error
 
 	err = loadEnvFile()
