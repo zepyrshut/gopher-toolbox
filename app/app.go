@@ -82,8 +82,7 @@ func New(name, version string) *App {
 
 	err = loadEnvFile()
 	if err != nil {
-		slog.Error("error loading env file", "error", err)
-		panic(err)
+		slog.Error("error loading env file, using default values", "error", err)
 	}
 
 	var durationTime time.Duration
@@ -93,10 +92,10 @@ func New(name, version string) *App {
 	pk := ak.Public()
 
 	duration := os.Getenv("DURATION")
+	durationTime = time.Hour * 24 * 7
 	if duration != "" {
-		durationTime, err = time.ParseDuration(duration)
-		if err != nil {
-			durationTime = time.Hour * 24 * 7
+		if parsed, err := time.ParseDuration(duration); err == nil {
+			durationTime = parsed
 		}
 	}
 
@@ -118,6 +117,7 @@ func New(name, version string) *App {
 			Duration:      durationTime,
 		},
 		AppInfo: AppInfo{
+			Name:    name,
 			Version: version,
 		},
 	}
