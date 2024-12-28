@@ -77,10 +77,10 @@ type AppSecurity struct {
 	Duration      time.Duration
 }
 
-func New(name, version string) *App {
+func New(name, version, envDirectory string) *App {
 	var err error
 
-	err = loadEnvFile()
+	err = loadEnvFile(envDirectory)
 	if err != nil {
 		slog.Error("error loading env file, using default values", "error", err)
 	}
@@ -166,8 +166,8 @@ func (a *App) Migrate(database embed.FS) {
 	slog.Info("migration done")
 }
 
-func loadEnvFile() error {
-	file, err := os.Open(".env")
+func loadEnvFile(envDirectory string) error {
+	file, err := os.Open(envDirectory)
 	if err != nil {
 		return err
 	}
