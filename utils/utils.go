@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 	"unicode"
@@ -60,4 +61,16 @@ func Slugify(s string) string {
 
 func isMn(r rune) bool {
 	return unicode.Is(unicode.Mn, r)
+}
+
+func FormatDateSpanish(date time.Time) string {
+	months := []string{"enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"}
+	days := []string{"domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"}
+
+	dayName := days[date.Weekday()]
+	day := date.Day()
+	month := months[date.Month()-1]
+	year := date.Year()
+
+	return dayName + ", " + strconv.Itoa(day) + " de " + month + " de " + strconv.Itoa(year)
 }
