@@ -95,7 +95,17 @@ func New(name, version, envDirectory string) *App {
 	var durationTime time.Duration
 	var ak paseto.V4AsymmetricSecretKey
 
-	ak = paseto.NewV4AsymmetricSecretKey()
+	if os.Getenv("ASYMMETRIC_KEY") != "" {
+		ak, err = paseto.NewV4AsymmetricSecretKeyFromHex(os.Getenv("ASYMMETRIC_KEY"))
+		if err != nil {
+			slog.Error("error creating asymmetric key", "error", err)
+		}
+	} else {
+		ak = paseto.NewV4AsymmetricSecretKey()
+	}
+
+	slog.Info("asymmetric key", "key", ak.ExportHex())
+
 	pk := ak.Public()
 
 	duration := os.Getenv("DURATION")
